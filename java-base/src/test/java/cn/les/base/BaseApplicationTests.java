@@ -1,10 +1,10 @@
-package cn.les.javabase;
+package cn.les.base;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class JavaBaseApplicationTests {
+class BaseApplicationTests {
 
     @Test
     void contextLoads() {
