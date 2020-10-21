@@ -114,15 +114,4 @@ public class SnowflakeUtils {
             return new Random().nextInt(DATA_RANDOM);
         }
     }
-
-
-    public static void main(String[] args) {
-        Set ids = new HashSet();
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 3000000; i++) {
-            ids.add(genId());
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("共生成id[" + ids.size() + "]个，花费时间[" + (end - start) + "]毫秒");
-    }
 }

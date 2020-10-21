@@ -27,7 +27,7 @@ public class PermissionServiceImpl implements IPermissionService {
     @Override
     public List<PermissionDTO> fetchLoginPermissionsByUserId(Long id) throws ResourceNotFoundException {
         Optional<UserDO> opt = userDao.findById(id);
-        if (opt.isEmpty()) {
+        if (!opt.isPresent()) {
             throw new ResourceNotFoundException("用户不存在！");
         }
         if (opt.get().getDeleteAt() > 0) {
@@ -50,7 +50,7 @@ public class PermissionServiceImpl implements IPermissionService {
     @Override
     public PermissionDTO fetchPermissionById(Long id) throws ResourceNotFoundException {
         Optional<PermissionDO> opt = permissionDao.findById(id);
-        if (opt.isEmpty()) {
+        if (!opt.isPresent()) {
             throw new ResourceNotFoundException("权限不存在！");
         }
         return PermissionDTO.fromPermissionDO(opt.get());

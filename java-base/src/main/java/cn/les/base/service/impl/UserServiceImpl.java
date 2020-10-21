@@ -31,7 +31,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserDTO fetchUserById(Long id) throws ResourceNotFoundException {
         Optional<UserDO> userOptional = userDao.findByIdAndDeleteAtEquals(id, 0L);
-        if (userOptional.isEmpty()) {
+        if (!userOptional.isPresent()) {
             throw new ResourceNotFoundException("找不到用户！");
         }
         UserDO userDO = userOptional.get();
@@ -48,7 +48,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserDTO fetchUserByUsername(String username) throws ResourceNotFoundException {
         Optional<UserDO> userOptional = userDao.findByUsernameAndDeleteAtEquals(username, 0L);
-        if (userOptional.isEmpty()) {
+        if (!userOptional.isPresent()) {
             throw new ResourceNotFoundException("找不到用户！");
         }
         UserDO userDO = userOptional.get();
@@ -88,7 +88,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void updateUser(UserDTO user) throws ResourceNotFoundException {
         Optional<UserDO> userDOOptional = userDao.findByIdAndDeleteAtEquals(user.getId(), 0L);
-        if (userDOOptional.isEmpty()) {
+        if (!userDOOptional.isPresent()) {
             throw new ResourceNotFoundException("找不到用户");
         }
         UserDO userDO = userDOOptional.get();
@@ -129,7 +129,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void updateUserState(Long id, Integer state) throws ResourceNotFoundException {
         Optional<UserDO> userDOOptional = userDao.findByIdAndDeleteAtEquals(id, 0L);
-        if (userDOOptional.isEmpty()) {
+        if (!userDOOptional.isPresent()) {
             throw new ResourceNotFoundException("找不到用户");
         }
         UserDO userDO = userDOOptional.get();
@@ -140,7 +140,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void removeUser(Long id) throws ResourceNotFoundException {
         Optional<UserDO> userDOOptional = userDao.findByIdAndDeleteAtEquals(id, 0L);
-        if (userDOOptional.isEmpty()) {
+        if (!userDOOptional.isPresent()) {
             throw new ResourceNotFoundException("找不到用户");
         }
         UserDO userDO = userDOOptional.get();

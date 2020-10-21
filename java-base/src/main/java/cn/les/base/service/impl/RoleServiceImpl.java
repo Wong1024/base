@@ -33,7 +33,7 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public RoleDTO fetchRoleById(Long id) throws ResourceNotFoundException {
         Optional<RoleDO> optional = roleDao.findById(id);
-        if (optional.isEmpty()) {
+        if (!optional.isPresent()) {
             throw new ResourceNotFoundException("找不到角色！");
         }
         return RoleDTO.fromRoleDO(optional.get());
@@ -60,7 +60,7 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public void updateRole(RoleDTO role) throws ResourceNotFoundException {
         Optional<RoleDO> optional = roleDao.findById(role.getId());
-        if (optional.isEmpty()) {
+        if (!optional.isPresent()) {
             throw new ResourceNotFoundException("找不到角色！");
         }
         RoleDO roleDO = optional.get();

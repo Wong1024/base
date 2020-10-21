@@ -29,7 +29,7 @@ public class MenuServiceImpl implements IMenuService {
     @Override
     public List<MenuDTO> fetchMenuTreeByUserId(Long userId) throws ResourceNotFoundException {
         Optional<UserDO> opt = userDao.findById(userId);
-        if (opt.isEmpty()) {
+        if (!opt.isPresent()) {
             throw new ResourceNotFoundException("用户不存在！");
         }
         if (opt.get().getDeleteAt() > 0) {
@@ -81,7 +81,7 @@ public class MenuServiceImpl implements IMenuService {
     @Override
     public MenuDTO fetchMenuById(Long id) throws ResourceNotFoundException {
         Optional<MenuDO> opt = menuDao.findById(id);
-        if (opt.isEmpty()) {
+        if (!opt.isPresent()) {
             throw new ResourceNotFoundException("找不到菜单！");
         }
         return MenuDTO.fromMenuDO(opt.get());

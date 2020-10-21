@@ -27,7 +27,7 @@ public class MyUserDetailServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserDO> opt = userDao.findByUsernameAndDeleteAtEquals(username, 0L);
-        if (opt.isEmpty()){
+        if (!opt.isPresent()){
             throw new UsernameNotFoundException("用户名不存在");
         }
         UserDO user = opt.get();

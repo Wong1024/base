@@ -20,7 +20,7 @@ public class DepartServiceImpl implements IDepartService {
     @Override
     public DepartDTO fetchDepartById(Long id) throws ResourceNotFoundException {
         Optional<DepartDO> opt = departDao.findByIdAndDeleteFlagFalse(id);
-        if (opt.isEmpty()) {
+        if (!opt.isPresent()) {
             throw new ResourceNotFoundException("找不到部门");
         }
         return DepartDTO.fromDepartDO(opt.get());
@@ -42,7 +42,7 @@ public class DepartServiceImpl implements IDepartService {
     @Override
     public void updateDepart(DepartDTO depart) throws ResourceNotFoundException {
         Optional<DepartDO> opt = departDao.findByIdAndDeleteFlagFalse(depart.getId());
-        if (opt.isEmpty()) {
+        if (!opt.isPresent()) {
             throw new ResourceNotFoundException("找不到部门");
         }
         departDao.save(depart.toDepartDO());
@@ -51,7 +51,7 @@ public class DepartServiceImpl implements IDepartService {
     @Override
     public void removeDepart(Long id) throws ResourceNotFoundException {
         Optional<DepartDO> opt = departDao.findByIdAndDeleteFlagFalse(id);
-        if (opt.isEmpty()) {
+        if (!opt.isPresent()) {
             throw new ResourceNotFoundException("找不到部门");
         }
         DepartDO depart = opt.get();
