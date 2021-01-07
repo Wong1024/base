@@ -62,11 +62,11 @@ export default {
   },
   async mounted() {
     this.loading = true;
-    await this.$store.dispatch('permission/loadAll').catch((err) => {
-      this.$message.error(`查询菜单失败：${err}`);
+    await this.$store.dispatch('permission/loadAll').catch(({ msg }) => {
+      this.$message.error(`查询菜单失败：${msg}`);
     });
-    this.permissionIds = await fetchPermissionIdsByRoleId(this.id).catch((err) => {
-      this.$message.error(`查询失败：${err}`);
+    this.permissionIds = await fetchPermissionIdsByRoleId(this.id).catch(({ msg }) => {
+      this.$message.error(`查询失败：${msg}`);
     });
     this.loading = false;
   },

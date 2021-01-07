@@ -50,8 +50,8 @@ export default {
       if (command === 'checkout') {
         doLogout().then(() => {
           this.$router.push('/login');
-        }).catch((err) => {
-          this.$message.error(`登出失败：${err}`);
+        }).catch(({ msg }) => {
+          this.$message.error(`登出失败：${msg}`);
         });
       }
     },

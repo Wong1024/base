@@ -150,8 +150,8 @@ export default {
         this.form.roles = [];
       }
       this.loading = false;
-    }).catch((err) => {
-      this.$message.error(`查询失败：${err}`);
+    }).catch(({ msg }) => {
+      this.$message.error(`查询失败：${msg}`);
     });
   },
 };

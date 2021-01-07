@@ -61,8 +61,8 @@ export default {
     fetchRoleById(this.id).then((data) => {
       this.form = data;
       this.loading = false;
-    }).catch((err) => {
-      this.$message.error(`查询失败：${err}`);
+    }).catch(({ msg }) => {
+      this.$message.error(`查询失败：${msg}`);
     });
   },
 };

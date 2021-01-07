@@ -122,8 +122,8 @@ export default {
       this.loading = true;
       this.$store.dispatch('menu/loadAll').then(() => {
         this.loading = false;
-      }).catch((err) => {
-        this.$message.error(`查询菜单失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`查询菜单失败：${msg}`);
         this.loading = false;
       });
     },
@@ -139,16 +139,16 @@ export default {
         this.$message.success('新增成功');
         this.addDialogFormVisible = false;
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`新增失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`新增失败：${msg}`);
       });
     },
     handleUpdate(form) {
       updateMenu(form).then(() => {
         this.$message.success('修改成功');
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`修改失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`修改失败：${msg}`);
       });
     },
     handleDelete(id) {
@@ -160,8 +160,8 @@ export default {
         removeMenu(id).then(() => {
           this.$message.success('删除成功');
           this.loadData();
-        }).catch((err) => {
-          this.$message.error(`删除失败：${err}`);
+        }).catch(({ msg }) => {
+          this.$message.error(`删除失败：${msg}`);
         });
       });
     },
@@ -173,8 +173,8 @@ export default {
       updatePermissionIdsByRoleId(menuId, permissionIds).then(() => {
         this.$message.success('修改成功');
         this.dialogMenuPermissionVisible = false;
-      }).catch((err) => {
-        this.$message.error(`修改失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`修改失败：${msg}`);
       });
     },
   },

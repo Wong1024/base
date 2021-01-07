@@ -21,8 +21,8 @@ export default {
   },
   mounted() {
     this.$store.dispatch('login/loadLoginUser');
-    this.$store.dispatch('login/loadLoginMenuTree').catch((err) => {
-      this.$message.error(`查询菜单失败：${err}`);
+    this.$store.dispatch('login/loadLoginMenuTree').catch(({ msg }) => {
+      this.$message.error(`查询菜单失败：${msg}`);
     });
   },
   updated() {

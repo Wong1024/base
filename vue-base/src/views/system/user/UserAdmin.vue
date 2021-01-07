@@ -88,11 +88,11 @@ export default {
     }),
   },
   mounted() {
-    this.$store.dispatch('role/loadAll').catch((err) => {
-      this.$message.error(`查询角色失败：${err}`);
+    this.$store.dispatch('role/loadAll').catch(({ msg }) => {
+      this.$message.error(`查询角色失败：${msg}`);
     });
-    this.$store.dispatch('depart/loadAll').catch((err) => {
-      this.$message.error(`查询部门失败：${err}`);
+    this.$store.dispatch('depart/loadAll').catch(({ msg }) => {
+      this.$message.error(`查询部门失败：${msg}`);
     });
     this.loadData();
   },
@@ -116,8 +116,8 @@ export default {
         this.$message.success('新增成功');
         this.addDialogFormVisible = false;
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`新增失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`新增失败：${msg}`);
       });
     },
     handleUpdate(form) {
@@ -125,8 +125,8 @@ export default {
         this.$message.success('修改成功');
         this.updateDialogFormVisible = false;
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`修改失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`修改失败：${msg}`);
       });
     },
     handleDelete(row) {
@@ -138,8 +138,8 @@ export default {
         removeUser(row.id).then(() => {
           this.$message.success('删除成功');
           this.loadData();
-        }).catch((err) => {
-          this.$message.error(`删除失败：${err}`);
+        }).catch(({ msg }) => {
+          this.$message.error(`删除失败：${msg}`);
         });
       });
     },
@@ -147,16 +147,16 @@ export default {
       updateUserState(row.id, 0).then(() => {
         this.$message.success('启用成功');
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`启用失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`启用失败：${msg}`);
       });
     },
     handleDeActive(row) {
       updateUserState(row.id, 1).then(() => {
         this.$message.success('禁用成功');
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`禁用失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`禁用失败：${msg}`);
       });
     },
   },

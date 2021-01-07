@@ -24,8 +24,12 @@ export default {
         } else {
           this.$router.push('/');
         }
-      }).catch((err) => {
-        this.errorMessage = err;
+      }).catch(({ code, msg }) => {
+        if (code === 4011) {
+          this.errorMessage = '用户名或密码错误';
+        } else {
+          this.errorMessage = msg;
+        }
       });
     },
   },

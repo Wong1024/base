@@ -102,8 +102,8 @@ export default {
         this.$message.success('新增成功');
         this.addDialogFormVisible = false;
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`新增失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`新增失败：${msg}`);
       });
     },
     handleUpdate(form) {
@@ -111,16 +111,16 @@ export default {
         this.$message.success('修改成功');
         this.updateDialogFormVisible = false;
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`修改失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`修改失败：${msg}`);
       });
     },
     handleDelete(row) {
       removeRole(row.id).then(() => {
         this.$message.success('删除成功');
         this.loadData();
-      }).catch((err) => {
-        this.$message.error(`删除失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`删除失败：${msg}`);
       });
     },
     handleMenuAdmin(row) {
@@ -131,8 +131,8 @@ export default {
       updateRoleMenusByRoleId(roleId, menuIds).then(() => {
         this.$message.success('修改成功');
         this.dialogRoleMenuVisible = false;
-      }).catch((err) => {
-        this.$message.error(`修改失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`修改失败：${msg}`);
       });
     },
   },

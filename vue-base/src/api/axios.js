@@ -8,16 +8,18 @@ instance.interceptors.request.use(
   (err) => Promise.reject(err),
 );
 
-instance.interceptors.response.use((response) => {
-  const { data } = response;
-  return data;
+instance.interceptors.response.use(({ data }) => {
+  if (!data.success) {
+    return Promise.reject(data);
+  }
+  return data.data;
 }, (error) => {
-  if (error.response.status === 401) {
+  if (error.response.data.code === 4010) {
     window.location.href = '/login';
   }
   // 请求错误时做些事
-  if (error.response && error.response.data && error.response.data.error) {
-    return Promise.reject(error.response.data.error);
+  if (error.response && error.response.data) {
+    return Promise.reject(error.response.data);
   }
   return Promise.reject(error.message);
 });

@@ -111,8 +111,8 @@ export default {
         this.form = { ...data };
         this.initForm = { ...data };
         this.loading = false;
-      }).catch((err) => {
-        this.$message.error(`查询失败：${err}`);
+      }).catch(({ msg }) => {
+        this.$message.error(`查询失败：${msg}`);
       });
     },
   },
@@ -154,8 +154,8 @@ export default {
       this.form = { ...data };
       this.initForm = { ...data };
       this.loading = false;
-    }).catch((err) => {
-      this.$message.error(`查询失败：${err}`);
+    }).catch(({ msg }) => {
+      this.$message.error(`查询失败：${msg}`);
     });
   },
   methods: {
