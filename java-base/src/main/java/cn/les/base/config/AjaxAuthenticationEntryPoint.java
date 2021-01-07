@@ -1,6 +1,9 @@
 package cn.les.base.config;
 
+import cn.les.base.utils.HttpCode;
+import cn.les.base.utils.RequestResult;
 import com.alibaba.fastjson.JSONObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -15,11 +18,9 @@ public class AjaxAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse response, AuthenticationException e) throws IOException {
         response.setContentType("application/json;charset=utf-8");
-        response.setStatus(401);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         PrintWriter out = response.getWriter();
-        JSONObject json = new JSONObject();
-        json.put("error", "未登录");
-        out.write(json.toString());
+        out.write(RequestResult.error(HttpCode.UNAUTHORIZED, "未登录").toString());
         out.flush();
         out.close();
     }

@@ -12,9 +12,9 @@ public interface IPermissionService {
 
     PermissionDTO fetchPermissionById(Long id) throws ResourceNotFoundException;
 
-    void addPermission(PermissionDTO permission);
+    PermissionDTO addPermission(PermissionDTO permission);
 
-    void updatePermission(PermissionDTO permission) throws ResourceNotFoundException;
+    PermissionDTO updatePermission(PermissionDTO permission) throws ResourceNotFoundException;
 
     /**
      * 删除权限以及其子权限

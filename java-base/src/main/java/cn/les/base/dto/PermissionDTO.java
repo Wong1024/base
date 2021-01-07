@@ -13,16 +13,4 @@ public class PermissionDTO {
     private String path;
     private String method;
     private Integer sort;
-
-    public static PermissionDTO fromPermissionDO(PermissionDO permissionDO) {
-        PermissionDTO permission = new PermissionDTO();
-        BeanUtils.copyProperties(permissionDO, permission);
-        return permission;
-    }
-
-    public PermissionDO toPermissionDO() {
-        PermissionDO permission = new PermissionDO();
-        BeanUtils.copyProperties(this, permission);
-        return permission;
-    }
 }

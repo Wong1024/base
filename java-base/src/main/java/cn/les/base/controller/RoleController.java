@@ -3,9 +3,9 @@ package cn.les.base.controller;
 import cn.les.base.dto.RoleDTO;
 import cn.les.base.exception.ResourceNotFoundException;
 import cn.les.base.service.IRoleService;
+import cn.les.base.utils.RequestResult;
 import cn.les.base.utils.SortUtils;
 import cn.les.base.utils.ValidatorUtils;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,12 +27,12 @@ public class RoleController {
      * @throws ResourceNotFoundException 找不到角色
      */
     @GetMapping("/roles/{id}")
-    public RoleDTO fetchRoleById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public RequestResult fetchRoleById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         RoleDTO role = roleService.fetchRoleById(id);
         if (role == null) {
             throw new ResourceNotFoundException("找不到角色！");
         }
-        return role;
+        return RequestResult.ok(role);
     }
 
     /**
@@ -45,14 +45,14 @@ public class RoleController {
      * @return 分页角色数据
      */
     @GetMapping("/rolesPage")
-    public Page<RoleDTO> fetchRolePage(
+    public RequestResult fetchRolePage(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             String order,
             String sortBy) {
         Sort sort = SortUtils.buildSort(order, sortBy, new String[]{"roleName"});
         Pageable pageable = PageRequest.of(page - 1, size, sort);
-        return roleService.fetchRolePage(pageable);
+        return RequestResult.ok(roleService.fetchRolePage(pageable));
     }
 
     /**
@@ -63,9 +63,9 @@ public class RoleController {
      * @return 角色列表
      */
     @GetMapping("/roles")
-    public List<RoleDTO> fetchRoles(String order, String sortBy) {
+    public RequestResult fetchRoles(String order, String sortBy) {
         Sort sort = SortUtils.buildSort(order, sortBy, new String[]{"roleName"});
-        return roleService.fetchRoles(sort);
+        return RequestResult.ok(roleService.fetchRoles(sort));
     }
 
     /**
@@ -74,9 +74,9 @@ public class RoleController {
      * @param role 角色数据
      */
     @PostMapping("/roles")
-    public void addRole(@RequestBody RoleDTO role) {
-        ValidatorUtils.notBlank(role.getRoleName(), "角色名不能为空");
-        roleService.addRole(role);
+    public RequestResult addRole(@RequestBody RoleDTO role) {
+        ValidatorUtils.getInstance().notBlank(role.getRoleName(), "角色名不能为空");
+        return RequestResult.ok(roleService.addRole(role));
     }
 
     /**
@@ -87,10 +87,10 @@ public class RoleController {
      * @throws ResourceNotFoundException 找不到角色
      */
     @PutMapping("/roles/{id}")
-    public void updateRole(@RequestBody RoleDTO role, @PathVariable("id") Long id) throws ResourceNotFoundException {
-        ValidatorUtils.notBlank(role.getRoleName(), "角色名不能为空");
+    public RequestResult updateRole(@RequestBody RoleDTO role, @PathVariable("id") Long id) throws ResourceNotFoundException {
+        ValidatorUtils.getInstance().notBlank(role.getRoleName(), "角色名不能为空");
         role.setId(id);
-        roleService.updateRole(role);
+        return RequestResult.ok(roleService.updateRole(role));
     }
 
     /**
@@ -100,18 +100,19 @@ public class RoleController {
      * @throws ResourceNotFoundException 找不到角色
      */
     @DeleteMapping("/roles/{id}")
-    public void removeRole(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public RequestResult removeRole(@PathVariable("id") Long id) throws ResourceNotFoundException {
         roleService.removeRole(id);
+        return RequestResult.ok();
     }
 
     @GetMapping("/roles/{id}/menuIds")
-    public List<Long> fetchMenuIdsByRoleId(@PathVariable("id") Long id) throws ResourceNotFoundException {
-        return roleService.fetchMenuIdsByRoleId(id);
+    public RequestResult fetchMenuIdsByRoleId(@PathVariable("id") Long id) throws ResourceNotFoundException {
+        return RequestResult.ok(roleService.fetchMenuIdsByRoleId(id));
     }
 
     @PutMapping("/roles/{id}/menuIds")
-    public void updateRoleMenusByRoleId(@PathVariable("id") Long id, @RequestBody List<Long> menuIds)
+    public RequestResult updateRoleMenusByRoleId(@PathVariable("id") Long id, @RequestBody List<Long> menuIds)
             throws ResourceNotFoundException {
-        roleService.updateRoleMenusByRoleId(id, menuIds);
+        return RequestResult.ok(roleService.updateRoleMenusByRoleId(id, menuIds));
     }
 }

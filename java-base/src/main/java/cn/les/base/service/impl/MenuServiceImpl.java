@@ -6,6 +6,7 @@ import cn.les.base.entity.MenuPermissionDO;
 import cn.les.base.entity.RoleMenuDO;
 import cn.les.base.entity.UserDO;
 import cn.les.base.exception.ResourceNotFoundException;
+import cn.les.base.mapstruct.MenuMapper;
 import cn.les.base.repository.IMenuDao;
 import cn.les.base.repository.IMenuPermissionDao;
 import cn.les.base.repository.IUserDao;
@@ -25,6 +26,8 @@ public class MenuServiceImpl implements IMenuService {
     private IUserDao userDao;
     @Resource
     private IMenuPermissionDao menuPermissionDao;
+    @Resource
+    private MenuMapper menuMapper;
 
     @Override
     public List<MenuDTO> fetchMenuTreeByUserId(Long userId) throws ResourceNotFoundException {
@@ -42,7 +45,7 @@ public class MenuServiceImpl implements IMenuService {
                 .map(MenuDO::getId)
                 .collect(Collectors.toList());
         Map<Long, MenuDTO> map = all.stream()
-                .map(MenuDTO::fromMenuDO)
+                .map(menuDO -> menuMapper.menuDOtoMenuDTO(menuDO))
                 .collect(Collectors.toMap(MenuDTO::getId, item -> item));
 
         MenuDTO item, parent;
@@ -84,30 +87,35 @@ public class MenuServiceImpl implements IMenuService {
         if (!opt.isPresent()) {
             throw new ResourceNotFoundException("找不到菜单！");
         }
-        return MenuDTO.fromMenuDO(opt.get());
+        return menuMapper.menuDOtoMenuDTO(opt.get());
     }
 
     @Override
     public List<MenuDTO> fetchMenus() {
         return menuDao.findAllByOrderBySort()
                 .stream()
-                .map(MenuDTO::fromMenuDO)
+                .map(menuDO -> menuMapper.menuDOtoMenuDTO(menuDO))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void addMenu(MenuDTO menu) {
-        MenuDO menuDO = menu.toMenuDO();
+    public MenuDTO addMenu(MenuDTO menu) {
+        MenuDO menuDO = menuMapper.menuDTOtoMenuDO(menu);
         menuDO.setId(SnowflakeUtils.genId());
         menuDao.save(menuDO);
+        return menuMapper.menuDOtoMenuDTO(menuDO);
     }
 
     @Override
-    public void updateMenu(MenuDTO menu) throws ResourceNotFoundException {
-        if (!menuDao.existsById(menu.getId())) {
+    public MenuDTO updateMenu(MenuDTO menu) throws ResourceNotFoundException {
+        Optional<MenuDO> optional = menuDao.findById(menu.getId());
+        if (!optional.isPresent()) {
             throw new ResourceNotFoundException("找不到菜单！");
         }
-        menuDao.save(menu.toMenuDO());
+        MenuDO menuDO = optional.get();
+        menuMapper.updateMenuFromDTO(menu, menuDO);
+        menuDao.save(menuDO);
+        return menuMapper.menuDOtoMenuDTO(menuDO);
     }
 
     @Override
@@ -131,7 +139,11 @@ public class MenuServiceImpl implements IMenuService {
     }
 
     @Override
-    public void updateMenuPermissionByMenuId(Long menuId, List<Long> permissionIds) {
+    public List<Long> updateMenuPermissionByMenuId(Long menuId, List<Long> permissionIds) throws ResourceNotFoundException {
+        if (!menuDao.existsById(menuId)) {
+            throw new ResourceNotFoundException("找不到菜单！");
+        }
+
         Set<Long> existPermissionIds = menuPermissionDao.findAllByMenuId(menuId)
                 .stream()
                 .map(MenuPermissionDO::getPermissionId)
@@ -149,5 +161,7 @@ public class MenuServiceImpl implements IMenuService {
             return menuPermissionDO;
         }).collect(Collectors.toList());
         menuPermissionDao.saveAll(newList);
+
+        return fetchPermissionIdsByMenuId(menuId);
     }
 }

@@ -10,9 +10,9 @@ public interface IDepartService {
 
     List<DepartDTO> fetchAllDeparts();
 
-    void addDepart(DepartDTO depart);
+    DepartDTO addDepart(DepartDTO depart);
 
-    void updateDepart(DepartDTO depart) throws ResourceNotFoundException;
+    DepartDTO updateDepart(DepartDTO depart) throws ResourceNotFoundException;
 
     void removeDepart(Long id) throws ResourceNotFoundException;
 }

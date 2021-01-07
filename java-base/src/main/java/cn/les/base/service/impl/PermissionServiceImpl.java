@@ -4,6 +4,7 @@ import cn.les.base.dto.PermissionDTO;
 import cn.les.base.entity.PermissionDO;
 import cn.les.base.entity.UserDO;
 import cn.les.base.exception.ResourceNotFoundException;
+import cn.les.base.mapstruct.PermissionMapper;
 import cn.les.base.repository.IMenuPermissionDao;
 import cn.les.base.repository.IPermissionDao;
 import cn.les.base.repository.IUserDao;
@@ -23,6 +24,8 @@ public class PermissionServiceImpl implements IPermissionService {
     private IPermissionDao permissionDao;
     @Resource
     private IUserDao userDao;
+    @Resource
+    private PermissionMapper permissionMapper;
 
     @Override
     public List<PermissionDTO> fetchLoginPermissionsByUserId(Long id) throws ResourceNotFoundException {
@@ -35,7 +38,7 @@ public class PermissionServiceImpl implements IPermissionService {
         }
         return permissionDao.findAllByUserIdWithoutGroup(id)
                 .stream()
-                .map(PermissionDTO::fromPermissionDO)
+                .map(permissionDO -> permissionMapper.permissionDOtoPermissionDTO(permissionDO))
                 .collect(Collectors.toList());
     }
 
@@ -43,7 +46,7 @@ public class PermissionServiceImpl implements IPermissionService {
     public List<PermissionDTO> fetchPermissions() {
         return permissionDao.findAll()
                 .stream()
-                .map(PermissionDTO::fromPermissionDO)
+                .map(permissionDO -> permissionMapper.permissionDOtoPermissionDTO(permissionDO))
                 .collect(Collectors.toList());
     }
 
@@ -53,22 +56,27 @@ public class PermissionServiceImpl implements IPermissionService {
         if (!opt.isPresent()) {
             throw new ResourceNotFoundException("权限不存在！");
         }
-        return PermissionDTO.fromPermissionDO(opt.get());
+        return permissionMapper.permissionDOtoPermissionDTO(opt.get());
     }
 
     @Override
-    public void addPermission(PermissionDTO permission) {
-        PermissionDO permissionDO = permission.toPermissionDO();
+    public PermissionDTO addPermission(PermissionDTO permission) {
+        PermissionDO permissionDO = permissionMapper.permissionDTOtoPermissionDO(permission);
         permissionDO.setId(SnowflakeUtils.genId());
         permissionDao.save(permissionDO);
+        return permissionMapper.permissionDOtoPermissionDTO(permissionDO);
     }
 
     @Override
-    public void updatePermission(PermissionDTO permission) throws ResourceNotFoundException {
-        if (!permissionDao.existsById(permission.getId())) {
+    public PermissionDTO updatePermission(PermissionDTO permission) throws ResourceNotFoundException {
+        Optional<PermissionDO> optional = permissionDao.findById(permission.getId());
+        if (!optional.isPresent()) {
             throw new ResourceNotFoundException("权限不存在！");
         }
-        permissionDao.save(permission.toPermissionDO());
+        PermissionDO permissionDO = optional.get();
+        permissionMapper.updatePermissionFromDTO(permission, permissionDO);
+        permissionDao.save(permissionDO);
+        return permissionMapper.permissionDOtoPermissionDTO(permissionDO);
     }
 
     @Override

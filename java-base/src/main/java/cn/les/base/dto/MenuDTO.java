@@ -19,16 +19,4 @@ public class MenuDTO {
     private Integer sort;
     private Boolean newWindow;
     private List<MenuDTO> children;
-
-    public static MenuDTO fromMenuDO(MenuDO menuDO) {
-        MenuDTO menu = new MenuDTO();
-        BeanUtils.copyProperties(menuDO, menu);
-        return menu;
-    }
-
-    public MenuDO toMenuDO() {
-        MenuDO menu = new MenuDO();
-        BeanUtils.copyProperties(this, menu);
-        return menu;
-    }
 }

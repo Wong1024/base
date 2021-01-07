@@ -8,6 +8,7 @@ import cn.les.base.exception.ResourceNotFoundException;
 import cn.les.base.service.IMenuService;
 import cn.les.base.service.IPermissionService;
 import cn.les.base.service.IUserService;
+import cn.les.base.utils.RequestResult;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,11 +32,11 @@ public class LoginController {
      * @throws ResourceNotFoundException 找不到登录用户信息
      */
     @GetMapping("/user")
-    public UserDTO fetchLoginUser() throws ResourceNotFoundException {
+    public RequestResult fetchLoginUser() throws ResourceNotFoundException {
         LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
-        return userService.fetchUserByUsername(loginUser.getUsername());
+        return RequestResult.ok(userService.fetchUserByUsername(loginUser.getUsername()));
     }
 
     /**
@@ -44,11 +45,11 @@ public class LoginController {
      * @return 权限列表
      */
     @GetMapping("/permissions")
-    List<PermissionDTO> fetchLoginPermissions() throws ResourceNotFoundException {
+    public RequestResult fetchLoginPermissions() throws ResourceNotFoundException {
         LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
-        return permissionService.fetchLoginPermissionsByUserId(loginUser.getId());
+        return RequestResult.ok(permissionService.fetchLoginPermissionsByUserId(loginUser.getId()));
     }
 
     /**
@@ -57,10 +58,10 @@ public class LoginController {
      * @return 菜单列表
      */
     @GetMapping("/menuTree")
-    List<MenuDTO> fetchLoginMenuTree() throws ResourceNotFoundException {
+    public RequestResult fetchLoginMenuTree() throws ResourceNotFoundException {
         LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
-        return menuService.fetchMenuTreeByUserId(loginUser.getId());
+        return RequestResult.ok(menuService.fetchMenuTreeByUserId(loginUser.getId()));
     }
 }

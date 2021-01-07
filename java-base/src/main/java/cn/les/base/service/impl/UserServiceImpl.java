@@ -4,6 +4,7 @@ import cn.les.base.dto.UserDTO;
 import cn.les.base.entity.UserDO;
 import cn.les.base.entity.UserRoleDO;
 import cn.les.base.exception.ResourceNotFoundException;
+import cn.les.base.mapstruct.UserMapper;
 import cn.les.base.repository.IUserDao;
 import cn.les.base.repository.IUserRoleDao;
 import cn.les.base.service.IUserService;
@@ -27,6 +28,8 @@ public class UserServiceImpl implements IUserService {
     private IUserDao userDao;
     @Resource
     private IUserRoleDao userRoleDao;
+    @Resource
+    private UserMapper userMapper;
 
     @Override
     public UserDTO fetchUserById(Long id) throws ResourceNotFoundException {
@@ -36,12 +39,8 @@ public class UserServiceImpl implements IUserService {
         }
         UserDO userDO = userOptional.get();
         userDO.setPassword(null);
-        UserDTO user = UserDTO.fromUserDO(userDO);
-        user.setRoles(
-                userRoleDao.findByUserId(id)
-                        .stream().map(UserRoleDO::getRoleId).map(Object::toString)
-                        .collect(Collectors.toList())
-        );
+        UserDTO user = userMapper.userDOtoUserDTO(userDO);
+        user.setRoles(fetchRoleIdsByUserId(id));
         return user;
     }
 
@@ -53,7 +52,7 @@ public class UserServiceImpl implements IUserService {
         }
         UserDO userDO = userOptional.get();
         userDO.setPassword(null);
-        return UserDTO.fromUserDO(userDO);
+        return userMapper.userDOtoUserDTO(userDO);
     }
 
     @Override
@@ -64,13 +63,13 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<UserDTO> fetchUsers(Sort sort) {
         return userDao.findAll(sort)
-                .stream().map(UserDTO::fromUserDO)
+                .stream().map(userDO -> userMapper.userDOtoUserDTO(userDO))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void addUser(UserDTO user) {
-        UserDO userDO = user.toUserDO();
+    public UserDTO addUser(UserDTO user) {
+        UserDO userDO = userMapper.userDTOtoUserDO(user);
         userDO.setId(SnowflakeUtils.genId());
         userDO.setPassword(new BCryptPasswordEncoder().encode(userDO.getPassword()));
         userDO.setDeleteAt(0L);
@@ -83,33 +82,32 @@ public class UserServiceImpl implements IUserService {
                 return userRole;
             }).collect(Collectors.toList()));
         }
+        UserDTO result = userMapper.userDOtoUserDTO(userDO);
+        result.setRoles(fetchRoleIdsByUserId(result.getId()));
+        return result;
     }
 
     @Override
-    public void updateUser(UserDTO user) throws ResourceNotFoundException {
+    public UserDTO updateUser(UserDTO user) throws ResourceNotFoundException {
         Optional<UserDO> userDOOptional = userDao.findByIdAndDeleteAtEquals(user.getId(), 0L);
         if (!userDOOptional.isPresent()) {
             throw new ResourceNotFoundException("找不到用户");
         }
         UserDO userDO = userDOOptional.get();
-        BeanUtils.copyProperties(user, userDO, "password");
-        if (!StringUtils.isEmpty(user.getPassword())) {
+        userMapper.updateUserFromDTO(user, userDO);
+        if (StringUtils.hasLength(user.getPassword())) {
             userDO.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         }
         userDao.save(userDO);
         //对现有角色和提交的角色做交集，获得要删除的角色和要新增的角色，减少对数据库的操作
-        List<Long> roleIds = user.getRoles() != null
-                ? user.getRoles().stream().map(Long::parseLong).collect(Collectors.toList())
-                : new ArrayList<>();
+        Set<Long> newRoleIds = user.getRoles() != null
+                ? user.getRoles().stream().map(Long::parseLong).collect(Collectors.toSet())
+                : new HashSet<>();
         Set<Long> currentRoleIds = userRoleDao.findByUserId(userDO.getId())
                 .stream().map(UserRoleDO::getRoleId).collect(Collectors.toSet());
-        Set<Long> newRoleIds = new HashSet<>(roleIds);
-        Set<Long> commonIds = new HashSet<>();
-        for (Long roleId : currentRoleIds) {
-            if (newRoleIds.contains(roleId)) {
-                commonIds.add(roleId);
-            }
-        }
+        Set<Long> commonIds = currentRoleIds.stream()
+                .filter(newRoleIds::contains)
+                .collect(Collectors.toSet());
         currentRoleIds.removeIf(commonIds::contains);
         newRoleIds.removeIf(commonIds::contains);
         if (currentRoleIds.size() > 0) {
@@ -124,17 +122,23 @@ public class UserServiceImpl implements IUserService {
                 return userRole;
             }).collect(Collectors.toList()));
         }
+        UserDTO result = userMapper.userDOtoUserDTO(userDO);
+        result.setRoles(fetchRoleIdsByUserId(result.getId()));
+        return result;
     }
 
     @Override
-    public void updateUserState(Long id, Integer state) throws ResourceNotFoundException {
-        Optional<UserDO> userDOOptional = userDao.findByIdAndDeleteAtEquals(id, 0L);
-        if (!userDOOptional.isPresent()) {
+    public UserDTO updateUserState(Long id, Integer state) throws ResourceNotFoundException {
+        Optional<UserDO> optional = userDao.findByIdAndDeleteAtEquals(id, 0L);
+        if (!optional.isPresent()) {
             throw new ResourceNotFoundException("找不到用户");
         }
-        UserDO userDO = userDOOptional.get();
+        UserDO userDO = optional.get();
         userDO.setState(state);
         userDao.save(userDO);
+        UserDTO result = userMapper.userDOtoUserDTO(userDO);
+        result.setRoles(fetchRoleIdsByUserId(result.getId()));
+        return result;
     }
 
     @Override
@@ -146,5 +150,11 @@ public class UserServiceImpl implements IUserService {
         UserDO userDO = userDOOptional.get();
         userDO.setDeleteAt(new Date().getTime());
         userDao.save(userDO);
+    }
+
+    private List<String> fetchRoleIdsByUserId(Long userId) {
+        return userRoleDao.findByUserId(userId)
+                .stream().map(UserRoleDO::getRoleId).map(Object::toString)
+                .collect(Collectors.toList());
     }
 }

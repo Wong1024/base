@@ -4,6 +4,7 @@ import cn.les.base.dto.RoleDTO;
 import cn.les.base.entity.RoleDO;
 import cn.les.base.entity.RoleMenuDO;
 import cn.les.base.exception.ResourceNotFoundException;
+import cn.les.base.mapstruct.RoleMapper;
 import cn.les.base.repository.IRoleDao;
 import cn.les.base.repository.IRoleMenuDao;
 import cn.les.base.repository.IUserRoleDao;
@@ -29,6 +30,8 @@ public class RoleServiceImpl implements IRoleService {
     private IUserRoleDao userRoleDao;
     @Resource
     private IRoleMenuDao roleMenuDao;
+    @Resource
+    private RoleMapper roleMapper;
 
     @Override
     public RoleDTO fetchRoleById(Long id) throws ResourceNotFoundException {
@@ -36,29 +39,30 @@ public class RoleServiceImpl implements IRoleService {
         if (!optional.isPresent()) {
             throw new ResourceNotFoundException("找不到角色！");
         }
-        return RoleDTO.fromRoleDO(optional.get());
+        return roleMapper.roleDOtoRoleDTO(optional.get());
     }
 
     @Override
     public Page<RoleDTO> fetchRolePage(Pageable pageable) {
-        return roleDao.findAll(pageable).map(RoleDTO::fromRoleDO);
+        return roleDao.findAll(pageable).map(item -> roleMapper.roleDOtoRoleDTO(item));
     }
 
     @Override
     public List<RoleDTO> fetchRoles(Sort sort) {
         return roleDao.findAll()
-                .stream().map(RoleDTO::fromRoleDO).collect(Collectors.toList());
+                .stream().map(item -> roleMapper.roleDOtoRoleDTO(item)).collect(Collectors.toList());
     }
 
     @Override
-    public void addRole(RoleDTO role) {
-        RoleDO roleDO = role.toRoleDO();
+    public RoleDTO addRole(RoleDTO role) {
+        RoleDO roleDO = roleMapper.roleDTOtoRoleDO(role);
         roleDO.setId(SnowflakeUtils.genId());
         roleDao.save(roleDO);
+        return roleMapper.roleDOtoRoleDTO(roleDO);
     }
 
     @Override
-    public void updateRole(RoleDTO role) throws ResourceNotFoundException {
+    public RoleDTO updateRole(RoleDTO role) throws ResourceNotFoundException {
         Optional<RoleDO> optional = roleDao.findById(role.getId());
         if (!optional.isPresent()) {
             throw new ResourceNotFoundException("找不到角色！");
@@ -66,6 +70,7 @@ public class RoleServiceImpl implements IRoleService {
         RoleDO roleDO = optional.get();
         roleDO.setRoleName(role.getRoleName());
         roleDao.save(roleDO);
+        return roleMapper.roleDOtoRoleDTO(roleDO);
     }
 
     @Override
@@ -89,7 +94,11 @@ public class RoleServiceImpl implements IRoleService {
     }
 
     @Override
-    public void updateRoleMenusByRoleId(Long roleId, List<Long> menuIds) throws ResourceNotFoundException {
+    public List<Long> updateRoleMenusByRoleId(Long roleId, List<Long> menuIds) throws ResourceNotFoundException {
+        if (!roleDao.existsById(roleId)) {
+            throw new ResourceNotFoundException("找不到角色！");
+        }
+
         Set<Long> existMenuIds = roleMenuDao.findAllByRoleId(roleId)
                 .stream()
                 .map(RoleMenuDO::getMenuId)
@@ -107,5 +116,7 @@ public class RoleServiceImpl implements IRoleService {
             return roleMenuDO;
         }).collect(Collectors.toList());
         roleMenuDao.saveAll(newList);
+
+        return fetchMenuIdsByRoleId(roleId);
     }
 }

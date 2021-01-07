@@ -3,8 +3,8 @@ package cn.les.base.controller;
 import cn.les.base.dto.UserDTO;
 import cn.les.base.exception.ResourceNotFoundException;
 import cn.les.base.service.IUserService;
+import cn.les.base.utils.RequestResult;
 import cn.les.base.utils.ValidatorUtils;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,12 +27,12 @@ public class UserController {
      * @throws ResourceNotFoundException 找不到用户
      */
     @GetMapping("/users/{id}")
-    public UserDTO fetchUserById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public RequestResult fetchUserById(@PathVariable("id") Long id) throws ResourceNotFoundException {
         UserDTO user = userService.fetchUserById(id);
         if (user == null) {
             throw new ResourceNotFoundException("找不到用户！");
         }
-        return user;
+        return RequestResult.ok(user);
     }
 
     /**
@@ -45,14 +45,14 @@ public class UserController {
      * @return 分页用户数据
      */
     @GetMapping("/usersPage")
-    public Page<UserDTO> fetchUserPage(
+    public RequestResult fetchUserPage(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             String order,
             String sortBy) {
         Sort sort = buildSort(order, sortBy);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
-        return userService.fetchUserPage(pageable);
+        return RequestResult.ok(userService.fetchUserPage(pageable));
     }
 
     /**
@@ -63,9 +63,9 @@ public class UserController {
      * @return 用户列表
      */
     @GetMapping("/users")
-    public List<UserDTO> fetchUsers(String order, String sortBy) {
+    public RequestResult fetchUsers(String order, String sortBy) {
         Sort sort = buildSort(order, sortBy);
-        return userService.fetchUsers(sort);
+        return RequestResult.ok(userService.fetchUsers(sort));
     }
 
     /**
@@ -74,11 +74,12 @@ public class UserController {
      * @param user 用户数据
      */
     @PostMapping("/users")
-    public void addUser(@RequestBody UserDTO user) {
-        ValidatorUtils.notBlank(user.getUsername(), "用户名不能为空");
-        ValidatorUtils.notBlank(user.getNickname(), "姓名不能为空");
-        ValidatorUtils.notBlank(user.getPassword(), "密码不能为空");
-        userService.addUser(user);
+    public RequestResult addUser(@RequestBody UserDTO user) {
+        ValidatorUtils.getInstance()
+                .notBlank(user.getUsername(), "用户名不能为空")
+                .notBlank(user.getNickname(), "姓名不能为空")
+                .notBlank(user.getPassword(), "密码不能为空");
+        return RequestResult.ok(userService.addUser(user));
     }
 
     /**
@@ -89,11 +90,12 @@ public class UserController {
      * @throws ResourceNotFoundException 找不到用户
      */
     @PutMapping("/users/{id}")
-    public void updateUser(@RequestBody UserDTO user, @PathVariable("id") Long id) throws ResourceNotFoundException {
-        ValidatorUtils.notBlank(user.getUsername(), "用户名不能为空");
-        ValidatorUtils.notBlank(user.getNickname(), "姓名不能为空");
+    public RequestResult updateUser(@RequestBody UserDTO user, @PathVariable("id") Long id) throws ResourceNotFoundException {
+        ValidatorUtils.getInstance()
+                .notBlank(user.getUsername(), "用户名不能为空")
+                .notBlank(user.getNickname(), "姓名不能为空");
         user.setId(id);
-        userService.updateUser(user);
+        return RequestResult.ok(userService.updateUser(user));
     }
 
     /**
@@ -104,9 +106,9 @@ public class UserController {
      * @throws ResourceNotFoundException 找不到用户
      */
     @PatchMapping("/users/{id}/state")
-    public void updateUserState(@RequestBody UserDTO user, @PathVariable("id") Long id) throws ResourceNotFoundException {
-        ValidatorUtils.notNull(user.getState(), "状态不能为空");
-        userService.updateUserState(id, user.getState());
+    public RequestResult updateUserState(@RequestBody UserDTO user, @PathVariable("id") Long id) throws ResourceNotFoundException {
+        ValidatorUtils.getInstance().notNull(user.getState(), "状态不能为空");
+        return RequestResult.ok(userService.updateUserState(id, user.getState()));
     }
 
     /**
@@ -116,14 +118,15 @@ public class UserController {
      * @throws ResourceNotFoundException 找不到用户
      */
     @DeleteMapping("/users/{id}")
-    public void removeUser(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    public RequestResult removeUser(@PathVariable("id") Long id) throws ResourceNotFoundException {
         userService.removeUser(id);
+        return RequestResult.ok();
     }
 
     private Sort buildSort(String order, String sortBy) {
         List<String> sortFields = Arrays.asList("username", "nickname");
         Sort sort = Sort.unsorted();
-        if (!StringUtils.isEmpty(sortBy) && sortFields.contains(sortBy)) {
+        if (StringUtils.hasLength(sortBy) && sortFields.contains(sortBy)) {
             sort = Sort.by("desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         }
         return sort;

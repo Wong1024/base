@@ -3,6 +3,7 @@ package cn.les.base.service.impl;
 import cn.les.base.dto.DepartDTO;
 import cn.les.base.entity.DepartDO;
 import cn.les.base.exception.ResourceNotFoundException;
+import cn.les.base.mapstruct.DepartMapper;
 import cn.les.base.repository.IDepartDao;
 import cn.les.base.service.IDepartService;
 import cn.les.base.utils.SnowflakeUtils;
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 public class DepartServiceImpl implements IDepartService {
     @Resource
     private IDepartDao departDao;
+    @Resource
+    private DepartMapper departMapper;
 
     @Override
     public DepartDTO fetchDepartById(Long id) throws ResourceNotFoundException {
@@ -23,29 +26,35 @@ public class DepartServiceImpl implements IDepartService {
         if (!opt.isPresent()) {
             throw new ResourceNotFoundException("找不到部门");
         }
-        return DepartDTO.fromDepartDO(opt.get());
+        return departMapper.departDOtoDepartDTO(opt.get());
     }
 
     @Override
     public List<DepartDTO> fetchAllDeparts() {
         return departDao.findByDeleteFlagFalse()
-                .stream().map(DepartDTO::fromDepartDO).collect(Collectors.toList());
+                .stream().map(depart -> departMapper.departDOtoDepartDTO(depart))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void addDepart(DepartDTO depart) {
-        DepartDO departDO = depart.toDepartDO();
+    public DepartDTO addDepart(DepartDTO depart) {
+        DepartDO departDO = departMapper.departDTOtoDepartDO(depart);
         departDO.setId(SnowflakeUtils.genId());
         departDao.save(departDO);
+        return departMapper.departDOtoDepartDTO(departDO);
     }
 
     @Override
-    public void updateDepart(DepartDTO depart) throws ResourceNotFoundException {
+    public DepartDTO updateDepart(DepartDTO depart) throws ResourceNotFoundException {
         Optional<DepartDO> opt = departDao.findByIdAndDeleteFlagFalse(depart.getId());
         if (!opt.isPresent()) {
             throw new ResourceNotFoundException("找不到部门");
         }
-        departDao.save(depart.toDepartDO());
+        DepartDO departDO = opt.get();
+        departDO.setDepartName(depart.getDepartName());
+        departDO.setParentId(depart.getParentId());
+        departDao.save(departDO);
+        return departMapper.departDOtoDepartDTO(departDO);
     }
 
     @Override

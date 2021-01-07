@@ -15,13 +15,13 @@ public interface IRoleService {
 
     List<RoleDTO> fetchRoles(Sort sort);
 
-    void addRole(RoleDTO role);
+    RoleDTO addRole(RoleDTO role);
 
-    void updateRole(RoleDTO role) throws ResourceNotFoundException;
+    RoleDTO updateRole(RoleDTO role) throws ResourceNotFoundException;
 
     void removeRole(Long id) throws ResourceNotFoundException;
 
     List<Long> fetchMenuIdsByRoleId(Long roleId) throws ResourceNotFoundException;
 
-    void updateRoleMenusByRoleId(Long roleId, List<Long> menuIds) throws ResourceNotFoundException;
+    List<Long> updateRoleMenusByRoleId(Long roleId, List<Long> menuIds) throws ResourceNotFoundException;
 }

@@ -1,6 +1,7 @@
 package cn.les.base.config;
 
-import com.alibaba.fastjson.JSONObject;
+import cn.les.base.utils.RequestResult;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -12,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Author: wyz
@@ -30,11 +33,11 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
             redirectUrl = savedRequest.getRedirectUrl();
         }
         response.setContentType("application/json;charset=utf-8");
-        response.setStatus(200);
+        response.setStatus(HttpStatus.OK.value());
         PrintWriter out = response.getWriter();
-        JSONObject json = new JSONObject();
-        json.put("url", redirectUrl);
-        out.write(json.toString());
+        Map<String, Object> map = new HashMap<>();
+        map.put("url", redirectUrl);
+        out.write(RequestResult.ok(map).toString());
         out.flush();
         out.close();
     }

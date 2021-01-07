@@ -64,7 +64,7 @@ public class MyInvocationSecurityMetadataSourceService implements FilterInvocati
         Set<Long> roleIds = new HashSet<>();
         boolean isMatch = false;
         for(PermissionWithRoleDTO permission : permissionWithRoles) {
-            if (StringUtils.isEmpty(permission.getPath())) {
+            if (!StringUtils.hasLength(permission.getPath())) {
                 continue;
             }
             matcher = new AntPathRequestMatcher(permission.getPath(), permission.getMethod());

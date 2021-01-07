@@ -1,6 +1,7 @@
 package cn.les.base.config;
 
-import com.alibaba.fastjson.JSONObject;
+import cn.les.base.utils.RequestResult;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
@@ -12,8 +13,12 @@ import java.io.PrintWriter;
 
 public class MyLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         response.setContentType("application/json;charset=utf-8");
-        response.setStatus(200);
+        response.setStatus(HttpStatus.OK.value());
+        PrintWriter out = response.getWriter();
+        out.write(RequestResult.ok().toString());
+        out.flush();
+        out.close();
     }
 }

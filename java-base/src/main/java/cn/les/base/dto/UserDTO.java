@@ -33,16 +33,4 @@ public class UserDTO {
         this.nickname = nickname;
         this.state = state;
     }
-
-    public static UserDTO fromUserDO(UserDO userDO) {
-        UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(userDO, userDTO, "password");
-        return userDTO;
-    }
-
-    public UserDO toUserDO() {
-        UserDO userDO = new UserDO();
-        BeanUtils.copyProperties(this, userDO);
-        return userDO;
-    }
 }

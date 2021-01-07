@@ -17,11 +17,11 @@ public interface IUserService {
 
     List<UserDTO> fetchUsers(Sort sort);
 
-    void addUser(UserDTO user);
+    UserDTO addUser(UserDTO user);
 
-    void updateUser(UserDTO user) throws ResourceNotFoundException;
+    UserDTO updateUser(UserDTO user) throws ResourceNotFoundException;
 
-    void updateUserState(Long id, Integer state) throws ResourceNotFoundException;
+    UserDTO updateUserState(Long id, Integer state) throws ResourceNotFoundException;
 
     void removeUser(Long id) throws ResourceNotFoundException;
 }

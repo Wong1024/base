@@ -3,6 +3,7 @@ package cn.les.base.controller;
 import cn.les.base.dto.DepartDTO;
 import cn.les.base.exception.ResourceNotFoundException;
 import cn.les.base.service.IDepartService;
+import cn.les.base.utils.RequestResult;
 import cn.les.base.utils.ValidatorUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,30 +16,31 @@ public class DepartController {
     private IDepartService departService;
 
     @GetMapping("/departs/{id}")
-    DepartDTO fetchDepartById(@PathVariable("id") Long id) throws ResourceNotFoundException {
-        return departService.fetchDepartById(id);
+    RequestResult fetchDepartById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+        return RequestResult.ok(departService.fetchDepartById(id));
     }
 
     @GetMapping("/departs")
-    List<DepartDTO> fetchAllDeparts() {
-        return departService.fetchAllDeparts();
+    RequestResult fetchAllDeparts() {
+        return RequestResult.ok(departService.fetchAllDeparts());
     }
 
     @PostMapping("/departs")
-    void addDepart(@RequestBody DepartDTO depart) {
-        ValidatorUtils.notBlank(depart.getDepartName(), "部门名不能为空");
-        departService.addDepart(depart);
+    RequestResult addDepart(@RequestBody DepartDTO depart) {
+        ValidatorUtils.getInstance().notBlank(depart.getDepartName(), "部门名不能为空");
+        return RequestResult.ok(departService.addDepart(depart));
     }
 
     @PutMapping("/departs/{id}")
-    void updateDepart(@PathVariable("id") Long id, @RequestBody DepartDTO depart) throws ResourceNotFoundException {
-        ValidatorUtils.notBlank(depart.getDepartName(), "部门名不能为空");
+    RequestResult updateDepart(@PathVariable("id") Long id, @RequestBody DepartDTO depart) throws ResourceNotFoundException {
+        ValidatorUtils.getInstance().notBlank(depart.getDepartName(), "部门名不能为空");
         depart.setId(id);
-        departService.updateDepart(depart);
+        return RequestResult.ok(departService.updateDepart(depart));
     }
 
     @DeleteMapping("/departs/{id}")
-    void removeDepart(@PathVariable("id") Long id) throws ResourceNotFoundException {
+    RequestResult removeDepart(@PathVariable("id") Long id) throws ResourceNotFoundException {
         departService.removeDepart(id);
+        return RequestResult.ok();
     }
 }

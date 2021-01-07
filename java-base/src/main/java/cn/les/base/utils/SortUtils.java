@@ -10,7 +10,7 @@ public class SortUtils {
     public static Sort buildSort(String order, String sortBy, String[] fields) {
         List<String> sortFields = Arrays.asList(fields);
         Sort sort = Sort.unsorted();
-        if (!StringUtils.isEmpty(sortBy) && sortFields.contains(sortBy)) {
+        if (StringUtils.hasLength(sortBy) && sortFields.contains(sortBy)) {
             sort = Sort.by("desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
         }
         return sort;

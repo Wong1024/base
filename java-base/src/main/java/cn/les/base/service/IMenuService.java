@@ -12,14 +12,14 @@ public interface IMenuService {
 
     List<MenuDTO> fetchMenus();
 
-    void addMenu(MenuDTO menu);
+    MenuDTO addMenu(MenuDTO menu);
 
-    void updateMenu(MenuDTO menu) throws ResourceNotFoundException;
+    MenuDTO updateMenu(MenuDTO menu) throws ResourceNotFoundException;
 
     void removeMenu(Long id) throws ResourceNotFoundException;
 
     List<Long> fetchPermissionIdsByMenuId(Long menuId) throws ResourceNotFoundException;
 
-    void updateMenuPermissionByMenuId(Long menuId, List<Long> permissionIds);
+    List<Long> updateMenuPermissionByMenuId(Long menuId, List<Long> permissionIds) throws ResourceNotFoundException;
 
 }
